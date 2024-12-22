@@ -1,5 +1,9 @@
-let columns = 80
-let rows = 80
+let columns = 100
+let rows = 100
+
+let maxHeight = 1000
+let maxWidth = 1000
+
 let grid = new Array(columns)
 
 let openSet = []
@@ -14,7 +18,16 @@ let resolutionHeight
 let path = []
 
 function setup() {
-  createCanvas(800, 800);
+  let canvasWidth = floor(windowWidth * 0.9)
+  let canvasHeight = floor(windowWidth * 0.8)
+
+  if (canvasWidth > maxWidth)
+    canvasWidth = maxWidth
+
+  if (canvasHeight > maxHeight)
+    canvasHeight = maxHeight
+
+  createCanvas(canvasWidth, canvasHeight);
 
   resolutionWidth = width / columns
   resolutionHeight = height / rows
