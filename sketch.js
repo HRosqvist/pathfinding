@@ -1,3 +1,5 @@
+let mode = 'select'
+
 let columns = 100
 let rows = 100
 
@@ -16,6 +18,7 @@ let resolutionWidth
 let resolutionHeight
 
 let path = []
+let current
 
 function setup() {
   let canvasWidth = floor(windowWidth * 0.9)
@@ -47,18 +50,23 @@ function setup() {
       grid[i][j].addNeighbors(grid)
     }
   }
-
-  start = grid[0][0]
-  end = grid[columns - 1][rows - 1]
-
-  start.wall = false
-  end.wall = false
-
-  openSet.push(start)
 }
 
 function draw() {
-  let current
+  background(0)
+  drawGrid()
+
+  if (mode == 'find') {
+    pathFindingLoop()
+    
+    drawClosed()
+    drawOpen()
+    drawPath(current)
+  }
+}
+  
+function pathFindingLoop() {
+  current = undefined
   if (openSet.length > 0) {
     let lowestIndex = 0
     for (let i = 0; i < openSet.length; i++) {
@@ -70,7 +78,6 @@ function draw() {
     current = openSet[lowestIndex]
 
     if (current === end) {
-      console.log('Done')
       noLoop()
     }
     
@@ -101,34 +108,35 @@ function draw() {
           neighbor.f = neighbor.g + neighbor.h
           neighbor.parent = current
         }
-        
       }
-
-      
     }
-    
   } else {
-    console.log('No solution')
     noLoop()
     return
   }
+}
 
-  background(0);
-
+function drawGrid() {
   for (let i = 0; i < columns; i++) {
     for (let j = 0; j < rows; j++) {
       grid[i][j].show(220)
     }
   }
+}
 
+function drawClosed() {
   for (let i = 0; i < closedSet.length; i++) {
     closedSet[i].show(color(255, 0, 0))
   }
+}
 
+function drawOpen() {
   for (let i = 0; i < openSet.length; i++) {
     openSet[i].show(color(0, 255, 0))
   }
+}
 
+function drawPath(current) {
   path = []
   let temp = current
   path.push(temp)
@@ -141,11 +149,22 @@ function draw() {
   for (let i = 0; i < path.length; i++) {
     path[i].show(color(0, 0, 255))
   }
-
 }
 
 function mousePressed() {
-  grid[floor(mouseX / resolutionWidth)][floor(mouseY / resolutionHeight)].wall = true
+  if (mode == 'select') {
+    if (!start) {
+      start = grid[floor(mouseX / resolutionWidth)][floor(mouseY / resolutionHeight)]
+    } else {
+      end = grid[floor(mouseX / resolutionWidth)][floor(mouseY / resolutionHeight)]
+      openSet.push(start)
+      mode = 'find'
+    }
+  }
+
+  if (mode == 'build') {
+    grid[floor(mouseX / resolutionWidth)][floor(mouseY / resolutionHeight)].wall = true
+  }
 }
 
 function removeFromArray(array, element) {
